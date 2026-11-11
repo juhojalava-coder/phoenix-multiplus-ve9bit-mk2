@@ -1,0 +1,141 @@
+# mk2.toml - Victron Phoenix MultiPlus (pre-VE.Bus) + MK2: control panel and Venus GX display bridge
+#
+# Usage:
+#   1. Copy this file to mk2.toml in the same folder and edit the values.
+#   2. Panel:    python mk2_panel.py            (choose the port in the window, or: --direct COM1 --mqtt)
+#      Bridge:   python mk2_mqtt.py
+#      Service:  python mk2_gx.py               (no user interface, e.g. on a Venus GX or Linux)
+#      Another file: --config path/file.toml or the environment variable MK2_CONFIG.
+#      Without tomllib (Venus OS): the same structure as a JSON file, e.g. --config mk2gx.json
+#      ({"serial": {"port": ...}, "venus": {...}, "alarms": {...}}).
+#   3. Prefer giving the MQTT password in the environment variable MK2_MQTT_PASSWORD or in the MQTT
+#      settings dialog of the panel (not in this file).
+#
+# The program checks this file at start-up. An unknown key, a wrong type or a value outside the safety
+# limits stops the start-up and tells which line is wrong.
+#
+# Safety: the settings can only NARROW the safety limits built into the program, never widen them.
+# The allowed MK2 commands, the protected flag bits and the write order are in the code (mk2_link.py).
+
+
+[serial]
+# Serial port of the MK2 interface. Windows: "COM1". Linux: a persistent name, e.g.
+# "/dev/serial/by-id/usb-FTDI_..." (ls /dev/serial/by-id/). "emulator" = the built-in emulator.
+# A port given on the command line overrides this.
+port = "COM1"
+
+
+[device]
+# The mains voltage selects the device profile (UInvSetpoint and AC input limits, mk2_link.DEVICE_PROFILES).
+# Project restriction: only the 120 V device has been tested. The 230 V profile is reserved but not
+# defined yet, so the value 230 is rejected.
+nominal_ac_voltage = 120
+
+# Upper limit of the charge current (IBatBulk, setting ID 4) in amperes. The panel does not write a larger
+# value. Set it according to the battery, the BMS and the DC wiring. The maximum of the charger is 70 A.
+max_charge_current_a = 45
+
+
+[battery]
+# The panel warns when writing settings if the absorption or float voltage exceeds these.
+# Defaults for 24 V LiFePO4 (8S): 28.6 V / 27.6 V.
+max_absorption_v = 28.6
+max_float_v = 27.6
+
+
+[knob]
+# Input current limiter (the knob of the DMC, Winmon 0x04). Values on the knob scale (the 16 A scale of the
+# old panel). The real mains current is about 1.7-1.9 x this (see knob_calibration.json). Allowed 2.0-15.9.
+min_a = 2.0
+max_a = 15.9
+# The switch state and the knob are re-sent at this interval (s), so they are restored after a reset or
+# a power cut of the device. RAM level, no EEPROM wear.
+repeat_s = 10
+
+[control]
+# false = MONITOR ONLY (default): opening the connection sends nothing that changes the device - no input
+#         current limit (knob) and no switch (Mode) command. Values are read and shown, settings can be read.
+# true  = control: on connect the saved knob limit is restored (the panel with --direct and the GX service also
+#         restore the saved switch), and the knob/switch of the panel change the device. Required by the Venus
+#         remote control below (allow_current_limit_control, allow_mode_control).
+# The panel can also switch control on and off while connected (the button on the Digital Multi Control); its
+# choice is remembered in mk2_panel_state.json, so the next Connect starts the same way.
+# Writing settings is separate (Write changes / Raw editor) and always asks for confirmation.
+# Writing, reset and control work only on verified device firmware (mk2_link.WRITE_ALLOWED_FW); on any other
+# firmware the program is read-only.
+enabled = false
+
+[state]
+# State file of mk2_gx.py (the last sent knob and switch, restored at start-up when control is on).
+# Empty = mk2_panel_state.json in the program folder. The panel always uses mk2_panel_state.json.
+path = ""
+
+
+[mqtt]
+# MQTT broker of the Venus GX (Settings -> Services -> MQTT on LAN). Address: the IP of the Venus or
+# venus.local. The panel's MQTT settings dialog overrides host, port, username and password.
+host = "venus.local"
+port = 1883
+username = ""
+password = ""            # leave empty and use the environment variable MK2_MQTT_PASSWORD
+# Client identifier (only A-Z, a-z, 0-9, _). It selects the device instance on the Venus: "client_id:label".
+client_id = "mk2pc"
+
+
+[venus]
+# Display on the Venus through the dbus-mqtt-devices driver (vebus service).
+label = "mp"
+custom_name = "MultiPlus 24/3000/70-30 120V"
+interval_s = 2           # publish interval
+refresh_s = 30           # an unchanged value is re-sent at this interval
+announce_every_s = 300   # repeat of the registration (in case the driver restarts)
+stale_s = 10             # a measurement becomes stale -> the device is reported as gone to the Venus
+null_for_missing = false # true: a missing value as empty (not tested), false: as zero
+# true: "Input current limit" = the calibrated real mains current of the knob, false: the value on the knob scale
+calibrated_limit = true
+# AC power on the Venus/VRM is an ESTIMATE: the device reports AC voltage and current only, not the power factor.
+# Published power = U * I * power_factor. 1.0 = apparent power (VA), an upper bound of the real power (W), so the
+# AC powers and the VRM energy totals can read high (resistive loads ~1.0, motors/electronics often 0.6-0.95).
+# Range 0.1..1.0. The DC power (battery) is real U * I.
+power_factor = 1.0
+# Remote control below requires [control] enabled = true.
+# true: the "Input current limit" control of the Venus (gui-v1, gui-v2, VRM) drives the knob. The value is the
+# real mains current (A). It is converted with the calibration into a knob value and limited to the [knob]
+# range. The Venus shows the value actually reached. The device reset cannot be controlled from the Venus.
+# Note: if the device is on VRM with two-way communication, the limit can also be set over the internet.
+allow_current_limit_control = false
+# true: the Mode control of the Venus (gui-v1, gui-v2, VRM) drives the switch: 1 charger only, 2 inverter only,
+# 3 on, 4 off (Winmon 0x03, RAM level). Other values are rejected. The choice is saved in the state file
+# and restored at start-up. Default false: Mode is only displayed. With the panel usually false (the switch
+# is used from the panel).
+# WARNING: Mode switches the load and the mains off or on. If the Venus is on VRM with two-way communication
+# (Remote Console / VRM control), the switch can also be used over the internet.
+allow_mode_control = false
+keepalive_s = 30         # the Venus sends changes only if the keepalive arrives more often than this (under 60 s)
+
+
+# Software alarms from measured values -> alarm rows and notifications on the Venus.
+# Remove or comment out a section = no alarm is sent and the row on the Venus stays empty.
+#
+#   [alarms.<name>]   name: HighDcCurrent, HighDcVoltage or Ripple
+#   source  = measurement: "udc" (V), "idc" (A, + = charging), "idc_abs" (A, both directions), "ripple" (V)
+#   warn    = warning limit (level 1), may be omitted
+#   alarm   = alarm limit (level 2), may be omitted
+#   hyst    = recovers only when the value is this much below the limit
+#   delay_s = the limit must be exceeded continuously for this long before the alarm
+#
+# Example values: check them against your own battery, BMS and wiring.
+
+[alarms.HighDcCurrent]
+source = "idc_abs"       # the capacity of the wiring applies to both charging and discharging (inverter)
+warn = 40
+alarm = 45
+hyst = 2
+delay_s = 5
+
+[alarms.HighDcVoltage]
+source = "udc"
+warn = 28.8              # 24 V LiFePO4: 3.60 V/cell
+alarm = 29.2             # 3.65 V/cell
+hyst = 0.2
+delay_s = 5

@@ -1,0 +1,24 @@
+# Your own settings and runtime state (these can contain passwords: never commit them)
+mk2.toml
+mk2_panel_state.json
+phoenix_settings_*.json
+
+# Recordings and runtime files
+capture_*.log
+capture_direct_*.log
+emu_*.log
+emu_ctrl.json
+link_quality_*.txt
+*_result.txt
+survey_*.jsonl
+survey_*_summary.txt
+
+# Release output
+dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# Personal release blocklist (device serials, host names, user names): never commit
+.release_blocklist

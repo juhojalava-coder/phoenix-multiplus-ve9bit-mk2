@@ -1,0 +1,97 @@
+{
+ "created": "2026-10-30 19:13:51",
+ "sources": [
+  "capture_20261030_164057.log"
+ ],
+ "method": "median IMains, hold>=8.0s, settle 3.0s",
+ "points": [
+  {
+   "knob": 10,
+   "imains": 1.52,
+   "idc": 6.26,
+   "umains": 120.7,
+   "n": 38,
+   "hold_s": 94.4
+  },
+  {
+   "knob": 28,
+   "imains": 4.87,
+   "idc": 19.93,
+   "umains": 119.0,
+   "n": 269,
+   "hold_s": 644.4
+  },
+  {
+   "knob": 31,
+   "imains": 5.63,
+   "idc": 22.41,
+   "umains": 118.2,
+   "n": 19,
+   "hold_s": 49.3
+  },
+  {
+   "knob": 35,
+   "imains": 6.39,
+   "idc": 25.18,
+   "umains": 117.8,
+   "n": 404,
+   "hold_s": 970.5
+  },
+  {
+   "knob": 36,
+   "imains": 6.7,
+   "idc": 26.63,
+   "umains": 118.2,
+   "n": 222,
+   "hold_s": 533.1
+  },
+  {
+   "knob": 41,
+   "imains": 7.46,
+   "idc": 28.95,
+   "umains": 117.8,
+   "n": 61,
+   "hold_s": 148.5
+  },
+  {
+   "knob": 45,
+   "imains": 8.22,
+   "idc": 32.2,
+   "umains": 116.9,
+   "n": 239,
+   "hold_s": 573.0
+  },
+  {
+   "knob": 50,
+   "imains": 9.13,
+   "idc": 35.57,
+   "umains": 115.7,
+   "n": 688,
+   "hold_s": 1661.6
+  },
+  {
+   "knob": 55,
+   "imains": 10.2,
+   "idc": 38.83,
+   "umains": 115.2,
+   "n": 437,
+   "hold_s": 1052.3
+  },
+  {
+   "knob": 61,
+   "imains": 11.26,
+   "idc": 41.97,
+   "umains": 114.8,
+   "n": 51,
+   "hold_s": 124.4
+  },
+  {
+   "knob": 66,
+   "imains": 12.18,
+   "idc": 44.97,
+   "umains": 114.4,
+   "n": 48,
+   "hold_s": 118.5
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+{
+  "host": "venus.local",
+  "port": 1883,
+  "username": "",
+  "password": "",
+  "client_id": "mk2pc",
+  "label": "mp",
+  "custom_name": "MultiPlus 24/3000/70-30 120V",
+  "interval_s": 2.0
+}
