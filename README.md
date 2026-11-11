@@ -1,7 +1,13 @@
 # Phoenix MultiPlus VE.9bit MK2 Link
 
-Configure, monitor and control a **pre-VE.Bus Victron Phoenix MultiPlus** (VE.9bit protocol) from a PC, and show it
-on a **Venus GX / Cerbo GX** like a modern VE.Bus device.
+Bring a **pre-VE.Bus Victron Phoenix MultiPlus** (VE.9bit protocol) onto a **Venus GX / Cerbo GX** like a modern
+VE.Bus unit, and configure, monitor and control it from a PC.
+
+Victron's GX software does not support these old units. Here the MK2 interface plugs **directly into the GX**
+(USB-RS232 adapter, no PC needed) and a service on the GX makes the MultiPlus a normal `vebus` device: Venus and VRM
+show AC in/out, battery, charge state, alarms and history, and can optionally set the **input current limit and
+Mode** (on / off / charger only / inverter only) from the GX, Remote Console or VRM. See
+[docs/venus-gx-service.md](docs/venus-gx-service.md).
 
 > **Not a Victron product.** This is an independent, unofficial project. It is not affiliated with, endorsed by or
 > supported by Victron Energy. Using it can change the configuration of a power device. Read [Safety](#safety) first.
